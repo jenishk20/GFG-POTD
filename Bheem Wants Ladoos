@@ -1,0 +1,206 @@
+//{ Driver Code Starts
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Node
+{
+    int data;
+    Node* left;
+    Node* right;
+};
+
+Node* newNode(int val)
+{
+    Node* temp = new Node;
+    temp->data = val;
+    temp->left = NULL;
+    temp->right = NULL;
+    
+    return temp;
+}
+
+Node* buildTree(string str)
+{   
+    // Corner Case
+    if(str.length() == 0 || str[0] == 'N')
+            return NULL;
+    
+    // Creating vector of strings from input 
+    // string after spliting by space
+    vector<string> ip;
+    
+    istringstream iss(str);
+    for(string str; iss >> str; )
+        ip.push_back(str);
+        
+    // Create the root of the tree
+    Node* root = newNode(stoi(ip[0]));
+        
+    // Push the root to the queue
+    queue<Node*> queue;
+    queue.push(root);
+        
+    // Starting from the second element
+    int i = 1;
+    while(!queue.empty() && i < ip.size()) {
+            
+        // Get and remove the front of the queue
+        Node* currNode = queue.front();
+        queue.pop();
+            
+        // Get the current node's value from the string
+        string currVal = ip[i];
+            
+        // If the left child is not null
+        if(currVal != "N") {
+                
+            // Create the left child for the current node
+            currNode->left = newNode(stoi(currVal));
+                
+            // Push it to the queue
+            queue.push(currNode->left);
+        }
+            
+        // For the right child
+        i++;
+        if(i >= ip.size())
+            break;
+        currVal = ip[i];
+            
+        // If the right child is not null
+        if(currVal != "N") {
+                
+            // Create the right child for the current node
+            currNode->right = newNode(stoi(currVal));
+                
+            // Push it to the queue
+            queue.push(currNode->right);
+        }
+        i++;
+    }
+    
+    return root;
+}
+
+
+// } Driver Code Ends
+/*
+// node structure:
+
+struct Node
+{
+    int data;
+    Node* left;
+    Node* right;
+};
+
+*/
+
+
+
+class Solution{
+
+    public:
+    map<Node *,Node *>ma;
+    Node *start=NULL;
+    void traverse(Node *root,int home)
+    {
+        if(!root) return;
+        if(root->data==home)
+        start=root;
+        
+        if(root->left)
+        ma[root->left]=root;
+        if(root->right)
+        ma[root->right]=root;
+        
+        traverse(root->left,home);
+        traverse(root->right,home);
+      
+    }
+    // void traverse1(Node *root)
+    // {
+    //     if(!root) return;
+        
+    //     if(ma[root])
+    //     cout<<root->data<<" "<<ma[root]->data<<endl;
+    //     if(root->left) traverse1(root->left);
+    //     if(root->right) traverse1(root->right);
+        
+    //     return;
+    // }
+    int ladoos(Node* root, int home, int k)
+    {
+        // Your code goes here
+        ma[root]=NULL;
+        traverse(root,home);
+        queue<pair<Node *,int>>q;
+        q.push({start,0});
+        map<int,bool>vis;
+     
+        int ans=0;
+        
+        ans+=start->data;
+        vis[start->data]=1;
+        
+        while(!q.empty())
+        {
+            auto curr=q.front();
+            q.pop();
+            int steps=curr.second;
+            Node *iterate=curr.first;
+            
+            if(steps>=k) break;
+            
+            if(iterate->left and vis.find(iterate->left->data)==vis.end())
+            {
+                ans+=iterate->left->data;
+                q.push({iterate->left,steps+1});
+                vis[iterate->left->data]=1;
+            }
+            if(iterate->right and vis.find(iterate->right->data)==vis.end())
+            {
+                ans+=iterate->right->data;
+                q.push({iterate->right,steps+1});
+                vis[iterate->right->data]=1;
+            }
+            if(ma[iterate]!=NULL and vis.find(ma[iterate]->data)==vis.end())
+            {
+                ans+=ma[iterate]->data;
+                vis[ma[iterate]->data]=1;
+                q.push({ma[iterate],steps+1});
+            }
+        }
+        
+        return ans;
+        // cout<<start->data<<endl;
+    }
+
+
+};
+
+
+//{ Driver Code Starts.
+int main()
+{
+    int t;
+    cin>>t;
+    getchar();
+    
+    while(t--)
+    {
+        string s;
+        getline(cin,s);
+        Node* root = buildTree(s);
+        
+        int home,k;
+        cin>> home >> k;
+        getchar();
+        Solution obj;
+        cout<< obj.ladoos(root,home,k) << endl;
+    }
+	return 0;
+}
+
+
+// } Driver Code Ends
